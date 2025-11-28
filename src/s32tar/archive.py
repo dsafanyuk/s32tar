@@ -91,13 +91,16 @@ class S3TarArchiver:
                 response = self.s3_client.get_object(Bucket=self.bucket, Key=key)
                 body = response["Body"]
 
-                # Create a TarInfo object
-                tar_info = tarfile.TarInfo(name=archive_name)
-                tar_info.size = size
+                try:
+                    # Create a TarInfo object
+                    tar_info = tarfile.TarInfo(name=archive_name)
+                    tar_info.size = size
 
-                # Add the file to the archive
-                tar.addfile(tar_info, fileobj=body)
-                file_count += 1
+                    # Add the file to the archive
+                    tar.addfile(tar_info, fileobj=body)
+                    file_count += 1
+                finally:
+                    body.close()
 
         return file_count
 

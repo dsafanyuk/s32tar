@@ -154,17 +154,22 @@ class TestS3TarArchiver:
         with tempfile.NamedTemporaryFile(suffix=".tar", delete=False) as f:
             output_path = f.name
 
-        file_count = archiver.archive_to_file(
-            prefix="folder1/", output_path=output_path
-        )
+        try:
+            file_count = archiver.archive_to_file(
+                prefix="folder1/", output_path=output_path
+            )
 
-        assert file_count == 3
+            assert file_count == 3
 
-        # Verify the TAR file contents
-        with tarfile.open(output_path, mode="r") as tar:
-            names = tar.getnames()
+            # Verify the TAR file contents
+            with tarfile.open(output_path, mode="r") as tar:
+                names = tar.getnames()
 
-        assert len(names) == 3
+            assert len(names) == 3
+        finally:
+            import os
+
+            os.unlink(output_path)
 
     def test_file_content_integrity(self, s3_bucket):
         """Test that file contents are preserved in the archive."""
