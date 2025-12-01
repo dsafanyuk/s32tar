@@ -8,6 +8,7 @@ A Python library for streaming files from AWS S3 folders into TAR archives using
 - Support for multiple compression formats (gzip, bz2, xz)
 - Configurable prefix stripping for cleaner archive paths
 - Pagination support for large S3 buckets
+- **Automatic chunking** to split large archives into multiple files (configurable size limit)
 
 ## Installation
 
@@ -100,6 +101,39 @@ s3_client = boto3.client(
 )
 
 archiver = S3TarArchiver(bucket="my-bucket", s3_client=s3_client)
+```
+
+### Chunking Large Archives
+
+Automatically split large archives into multiple files with a configurable size limit (default: 20GB):
+
+```python
+from s32tar import S3TarArchiver
+
+# Set maximum archive size to 10GB
+archiver = S3TarArchiver(bucket="my-bucket", max_size_gb=10.0)
+
+# Create chunked archives (archive_1.tar, archive_2.tar, ...)
+chunks = archiver.archive_to_files_chunked(
+    prefix="data/exports/",
+    output_pattern="archive_{}.tar"
+)
+
+# Returns: [("archive_1.tar", 150), ("archive_2.tar", 142), ...]
+# Each tuple is (filename, file_count)
+for filename, file_count in chunks:
+    print(f"{filename}: {file_count} files")
+```
+
+Chunking also works with compression:
+
+```python
+# Create compressed chunks (archive_1.tar.gz, archive_2.tar.gz, ...)
+chunks = archiver.archive_to_files_chunked(
+    prefix="data/exports/",
+    output_pattern="archive_{}.tar.gz",
+    compression="gz"
+)
 ```
 
 ## Development
