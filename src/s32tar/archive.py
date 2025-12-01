@@ -205,7 +205,11 @@ class S3TarArchiver:
                     chunk_num += 1
                     current_filename = output_pattern.format(chunk_num)
                     output_file = open(current_filename, "wb")
-                    tar = tarfile.open(fileobj=output_file, mode=mode)
+                    try:
+                        tar = tarfile.open(fileobj=output_file, mode=mode)
+                    except Exception:
+                        output_file.close()
+                        raise
                     current_size = 0
                     files_in_chunk = 0
 

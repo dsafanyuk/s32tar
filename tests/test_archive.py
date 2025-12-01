@@ -257,6 +257,7 @@ class TestS3TarArchiver:
 
         # Set max size to 25MB so we get multiple chunks
         # Each file is 10MB, so we should get 3 chunks: 2 files, 2 files, 1 file
+        # Convert MB to GB: 25MB / 1024 MB/GB = ~0.0244 GB
         archiver = S3TarArchiver(
             bucket=bucket_name, s3_client=s3, max_size_gb=25.0 / 1024
         )
